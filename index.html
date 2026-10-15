@@ -3,25 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartCampus OS - Колледж Инвентарь Системасы</title>
+    <title>SmartCampus OS - Инвентарь жана Башкаруу Системасы</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
-                extend: {
-                    colors: {
-                        darkBg: '#0b0f19',
-                    }
-                }
+                extend: { colors: { darkBg: '#0b0f19' } }
             }
         }
     </script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- QR Code Library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     
     <!-- Firebase SDK (Compat) -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -43,9 +37,7 @@
             from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .animate-fade {
-            animation: fadeIn 0.3s ease-out forwards;
-        }
+        .animate-fade { animation: fadeIn 0.3s ease-out forwards; }
     </style>
 </head>
 <body class="bg-slate-100 dark:bg-darkBg text-slate-800 dark:text-slate-100 min-h-screen font-sans transition-colors duration-300">
@@ -53,20 +45,20 @@
     <!-- Toast Билдирүүлөр -->
     <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2"></div>
 
-    <!-- Кирүү (Login) Модалы (Эгер колдонуучу кирбеген болсо чыгат) -->
-    <div id="auth-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center z-50 animate-fade">
+    <!-- Авторизация Модалы (Админ же IT Адис кирүү үчүн) -->
+    <div id="auth-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center hidden z-50 animate-fade">
         <div class="glass-panel border border-slate-200 dark:border-slate-700 rounded-3xl p-8 max-w-md w-full mx-4 shadow-2xl">
             <div class="text-center mb-6">
                 <div class="bg-gradient-to-tr from-indigo-600 to-violet-600 p-3 rounded-2xl text-white inline-block shadow-lg shadow-indigo-500/30 mb-3">
-                    <i class="fa-solid fa-graduation-cap text-2xl"></i>
+                    <i class="fa-solid fa-user-shield text-2xl"></i>
                 </div>
-                <h2 class="text-xl font-extrabold text-slate-800 dark:text-white" id="auth-title">SmartCampus OS Кирүү</h2>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1" id="auth-sub">Системага кирүү үчүн почта жана пароль жазыңыз</p>
+                <h2 class="text-xl font-extrabold text-slate-800 dark:text-white">Админ же IT Адис Кирүү</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Почтаңызда 'admin' же 'it' болушу керек</p>
             </div>
 
             <form onsubmit="event.preventDefault(); handleAuth();" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Электрондук почта (Email)</label>
+                    <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Почта (Email)</label>
                     <input type="email" id="auth-email" required placeholder="admin@smartcampus.kg" 
                         class="w-full bg-slate-100/70 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-indigo-500">
                 </div>
@@ -76,16 +68,11 @@
                         class="w-full bg-slate-100/70 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-indigo-500">
                 </div>
 
-                <button type="submit" id="auth-btn" class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-indigo-600/25 transition">
-                    Кирүү
-                </button>
+                <div class="flex space-x-3 pt-2">
+                    <button type="button" onclick="closeAuthModal()" class="w-1/2 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white font-semibold py-2.5 rounded-xl text-xs">Жабуу</button>
+                    <button type="submit" class="w-1/2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-xl text-xs shadow-lg">Кирүү</button>
+                </div>
             </form>
-
-            <div class="mt-5 text-center">
-                <button type="button" onclick="toggleAuthMode()" class="text-xs text-indigo-500 hover:underline font-medium" id="auth-toggle-btn">
-                    Аккаунтуңуз жокпу? Катталуу
-                </button>
-            </div>
         </div>
     </div>
 
@@ -100,34 +87,27 @@
                     <h1 class="text-xl font-extrabold tracking-wide bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-400 bg-clip-text text-transparent">
                         SmartCampus OS
                     </h1>
-                    <p class="text-[10px] text-slate-400 uppercase tracking-widest font-semibold" id="user-email-display">Катталуу же кирүү</p>
+                    <p class="text-[10px] text-slate-400 uppercase tracking-widest font-semibold" id="role-badge-text">Мугалимдик режим (Каттоосуз)</p>
                 </div>
             </div>
 
-            <!-- Саат, Тема, Тил, Чыгуу -->
             <div class="flex flex-wrap items-center justify-center gap-3">
-                <!-- Саат -->
                 <div class="bg-slate-200/50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 px-3 py-1.5 rounded-xl text-xs text-cyan-600 dark:text-cyan-400 font-mono flex items-center space-x-1.5">
                     <i class="fa-regular fa-clock"></i>
                     <span id="clock-time">00:00:00</span>
                 </div>
 
-                <!-- Тема -->
-                <button type="button" onclick="toggleTheme()" class="bg-slate-200/50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:text-indigo-500 transition">
-                    <i id="theme-icon" class="fa-solid fa-sun"></i>
-                </button>
+                <div id="login-btn-container">
+                    <button onclick="openAuthModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs px-3 py-1.5 rounded-xl transition flex items-center space-x-1 shadow-md">
+                        <i class="fa-solid fa-right-to-bracket"></i> <span>Админ / IT Кирүү</span>
+                    </button>
+                </div>
 
-                <!-- Тил -->
-                <select id="language-select" onchange="switchLanguage(this.value)" class="bg-slate-200/50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs px-2.5 py-1.5 rounded-xl focus:outline-none">
-                    <option value="ky">🇰🇬 KG</option>
-                    <option value="ru">🇷🇺 RU</option>
-                    <option value="en">🇬🇧 EN</option>
-                </select>
-
-                <!-- Чыгуу баскычы -->
-                <button onclick="logoutUser()" class="bg-rose-500/10 hover:bg-rose-500 text-rose-600 hover:text-white border border-rose-500/20 text-xs px-3 py-1.5 rounded-xl transition flex items-center space-x-1">
-                    <i class="fa-solid fa-right-from-bracket"></i> <span>Чыгуу</span>
-                </button>
+                <div id="logout-btn-container" class="hidden">
+                    <button onclick="logoutUser()" class="bg-rose-500/10 hover:bg-rose-500 text-rose-600 hover:text-white border border-rose-500/20 text-xs px-3 py-1.5 rounded-xl transition flex items-center space-x-1">
+                        <i class="fa-solid fa-right-from-bracket"></i> <span id="user-display-email">Чыгуу</span>
+                    </button>
+                </div>
             </div>
         </div>
     </header>
@@ -140,134 +120,110 @@
             <div class="glass-panel border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
                 <div class="flex justify-between items-center">
                     <div>
-                        <p class="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400" data-i18n="statOperational">Иштеп жаткан</p>
+                        <p class="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Иштеп жаткан</p>
                         <h3 class="text-3xl font-black text-emerald-600 dark:text-emerald-400 mt-2" id="count-operational">0</h3>
                     </div>
-                    <div class="bg-emerald-500/10 text-emerald-500 dark:text-emerald-400 p-3.5 rounded-2xl">
-                        <i class="fa-solid fa-check-circle text-2xl"></i>
-                    </div>
+                    <div class="bg-emerald-500/10 text-emerald-500 p-3.5 rounded-2xl"><i class="fa-solid fa-check-circle text-2xl"></i></div>
                 </div>
             </div>
-
             <div class="glass-panel border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
                 <div class="flex justify-between items-center">
                     <div>
-                        <p class="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400" data-i18n="statRepair">Оңдоодо</p>
+                        <p class="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Оңдоодо</p>
                         <h3 class="text-3xl font-black text-amber-600 dark:text-amber-400 mt-2" id="count-repair">0</h3>
                     </div>
-                    <div class="bg-amber-500/10 text-amber-500 dark:text-amber-400 p-3.5 rounded-2xl">
-                        <i class="fa-solid fa-wrench text-2xl"></i>
-                    </div>
+                    <div class="bg-amber-500/10 text-amber-500 p-3.5 rounded-2xl"><i class="fa-solid fa-wrench text-2xl"></i></div>
                 </div>
             </div>
-
             <div class="glass-panel border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
                 <div class="flex justify-between items-center">
                     <div>
-                        <p class="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400" data-i18n="statBroken">Бузулган</p>
+                        <p class="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Бузулган</p>
                         <h3 class="text-3xl font-black text-rose-600 dark:text-rose-400 mt-2" id="count-broken">0</h3>
                     </div>
-                    <div class="bg-rose-500/10 text-rose-500 dark:text-rose-400 p-3.5 rounded-2xl">
-                        <i class="fa-solid fa-triangle-exclamation text-2xl"></i>
-                    </div>
+                    <div class="bg-rose-500/10 text-rose-500 p-3.5 rounded-2xl"><i class="fa-solid fa-triangle-exclamation text-2xl"></i></div>
                 </div>
             </div>
         </div>
 
-        <!-- Контент катарлары -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
             <!-- Сол тараптагы панель -->
             <div class="space-y-6 print:hidden">
-                <!-- Компьютер Кошуу формасы (Админдер үчүн гана) -->
-                <div id="admin-form-panel" class="admin-only glass-panel border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm hidden">
-                    <h2 class="text-base font-bold mb-5 flex items-center text-slate-800 dark:text-white">
-                        <i class="fa-solid fa-plus-circle text-indigo-500 mr-2.5 text-lg"></i> <span data-i18n="formTitle">Компьютер кошуу</span>
-                    </h2>
-                    <form id="add-form" class="space-y-4" onsubmit="event.preventDefault(); addComputer();">
-                        <div>
-                            <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5" data-i18n="labelName">Аталышы / Номери</label>
-                            <input type="text" id="pc-name" required placeholder="Мисалы: PC-Lab-101" 
-                                class="w-full bg-slate-100/70 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-indigo-500">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5" data-i18n="labelLocation">Жайгашкан жери (Кабинет)</label>
-                            <input type="text" id="pc-location" required placeholder="Мисалы: 304-кабинет" 
-                                class="w-full bg-slate-100/70 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-indigo-500">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5" data-i18n="labelStatus">Статусу</label>
-                            <select id="pc-status" class="w-full bg-slate-100/70 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-indigo-500">
+                
+                <!-- АДМИН ПАНЕЛИ: Компьютер кошуу жана мугалимден келген заявкалар -->
+                <div id="admin-panel" class="role-section hidden space-y-6">
+                    <div class="glass-panel border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
+                        <h2 class="text-base font-bold mb-4 flex items-center text-slate-800 dark:text-white">
+                            <i class="fa-solid fa-plus-circle text-indigo-500 mr-2.5"></i> <span>Компьютер кошуу</span>
+                        </h2>
+                        <form onsubmit="event.preventDefault(); addComputer();" class="space-y-3">
+                            <input type="text" id="pc-name" required placeholder="Аталышы (Мис: PC-101)" 
+                                class="w-full bg-slate-100/70 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2 text-sm">
+                            <input type="text" id="pc-location" required placeholder="Кабинет (Мис: 304-каб)" 
+                                class="w-full bg-slate-100/70 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2 text-sm">
+                            <select id="pc-status" class="w-full bg-slate-100/70 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2 text-sm">
                                 <option value="Operational">Иштеп жатат</option>
                                 <option value="Repair">Оңдоодо</option>
                                 <option value="Broken">Бузулган</option>
                             </select>
-                        </div>
-                        <button type="submit" class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-indigo-600/25">
-                            Кошуу
-                        </button>
-                    </form>
+                            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-xl text-xs shadow-lg">Кошуу</button>
+                        </form>
+                    </div>
+
+                    <div class="glass-panel border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
+                        <h2 class="text-base font-bold mb-4 flex items-center text-amber-500">
+                            <i class="fa-solid fa-bell mr-2"></i> Мугалимден келген заявкалар
+                        </h2>
+                        <div id="admin-requests-list" class="space-y-3 max-h-60 overflow-y-auto"></div>
+                    </div>
                 </div>
 
-                <!-- Мугалимдер үчүн маалымат панели -->
-                <div id="teacher-info-panel" class="teacher-only glass-panel border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm hidden">
-                    <h2 class="text-base font-bold mb-3 flex items-center text-indigo-500">
-                        <i class="fa-solid fa-circle-info mr-2"></i> Мугалимдердин Панели
+                <!-- IT АДИС ПАНЕЛИ: Админден келген тапшырмалар -->
+                <div id="it-panel" class="role-section hidden glass-panel border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
+                    <h2 class="text-base font-bold mb-4 flex items-center text-cyan-500">
+                        <i class="fa-solid fa-screwdriver-wrench mr-2"></i> IT Адистин Тапшырмалары
                     </h2>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
-                        Сиз кабинеттеги компьютерлердин абалын көрүп жатасыз. Бузулган компьютер болсо, оң жактагы <i class="fa-solid fa-wrench text-amber-500"></i> аркылуу заявка жөнөтүңүз.
+                    <div id="it-tasks-list" class="space-y-3 max-h-80 overflow-y-auto"></div>
+                </div>
+
+                <!-- МУГАЛИМ ПАНЕЛИ -->
+                <div id="teacher-panel" class="role-section glass-panel border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
+                    <h2 class="text-base font-bold mb-3 flex items-center text-indigo-500">
+                        <i class="fa-solid fa-chalkboard-user mr-2"></i> Мугалимдердин Панели
+                    </h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-3">
+                        Компьютер бузулса, таблицадан тиешелүү ПКнын жанындагы <span class="text-amber-500 font-bold">Заявка</span> кнопкасын басып Админге жөнөтүңүз.
                     </p>
                 </div>
 
-                <!-- IT Адистин Сурамдар тизмеси -->
-                <div id="requests-panel" class="admin-only glass-panel border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm hidden">
-                    <h2 class="text-base font-bold mb-4 flex items-center text-amber-500">
-                        <i class="fa-solid fa-bell mr-2"></i> Келип түшкөн сурамдар
-                    </h2>
-                    <div id="requests-list" class="space-y-3 max-h-60 overflow-y-auto"></div>
-                </div>
             </div>
 
-            <!-- Таблица жана Издөө -->
-            <div id="table-container" class="lg:col-span-2 glass-panel border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm print:col-span-3 print:border-none print:shadow-none">
+            <!-- Таблица -->
+            <div id="table-container" class="lg:col-span-2 glass-panel border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
                     <h2 class="text-base font-bold flex items-center text-slate-800 dark:text-white">
-                        <span><i class="fa-solid fa-desktop text-indigo-500 mr-2.5 print:hidden"></i> <span data-i18n="tableTitle">Инвентарь тизмеси</span></span>
+                        <i class="fa-solid fa-desktop text-indigo-500 mr-2.5"></i> <span>Компьютерлердин тизмеси</span>
                     </h2>
-                    <span class="text-xs bg-slate-200/70 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold px-3 py-1 rounded-full border border-slate-300 dark:border-slate-700" id="total-count">Бардыгы: 0</span>
+                    <span class="text-xs bg-slate-200/70 dark:bg-slate-800 px-3 py-1 rounded-full border border-slate-300 dark:border-slate-700" id="total-count">Бардыгы: 0</span>
                 </div>
 
-                <!-- Издөө жана чыпкалоо -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5 print:hidden">
-                    <div class="relative">
-                        <i class="fa-solid fa-search absolute left-3.5 top-3 text-slate-400 text-sm"></i>
-                        <input type="text" id="search-input" oninput="toggleClearBtn(); render();" placeholder="Издөө..." data-i18n-placeholder="searchPlaceholder"
-                            class="w-full bg-slate-100/70 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl pl-10 pr-9 py-2.5 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-indigo-500">
-                        <button id="clear-search-btn" onclick="clearSearch()" class="hidden absolute right-3.5 top-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-sm">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
-                    </div>
-                    <div>
-                        <select id="filter-status" onchange="render()" class="w-full bg-slate-100/70 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-indigo-500">
-                            <option value="All" data-i18n="filterAll">Бардык статустар</option>
-                            <option value="Operational" data-i18n="filterOperational">Иштеп жаткандар гана</option>
-                            <option value="Repair" data-i18n="filterRepair">Оңдоодогулар гана</option>
-                            <option value="Broken" data-i18n="filterBroken">Бузулгандар гана</option>
-                        </select>
-                    </div>
+                <div class="mb-5">
+                    <input type="text" id="search-input" oninput="render();" placeholder="Издөө..." 
+                        class="w-full bg-slate-100/70 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm">
                 </div>
                 
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="border-b border-slate-200 dark:border-slate-800 text-slate-400 text-xs uppercase tracking-wider">
-                                <th class="py-3 px-4 font-semibold" data-i18n="thName">Аталышы</th>
-                                <th class="py-3 px-4 font-semibold" data-i18n="thLocation">Кабинет</th>
-                                <th class="py-3 px-4 font-semibold" data-i18n="thStatus">Статусу</th>
-                                <th class="py-3 px-4 text-right font-semibold print:hidden" data-i18n="thAction">Аракет</th>
+                            <tr class="border-b border-slate-200 dark:border-slate-800 text-slate-400 text-xs uppercase">
+                                <th class="py-3 px-4">Аталышы</th>
+                                <th class="py-3 px-4">Кабинет</th>
+                                <th class="py-3 px-4">Статусу</th>
+                                <th class="py-3 px-4 text-right">Аракет</th>
                             </tr>
                         </thead>
-                        <tbody id="computer-list" class="divide-y divide-slate-200/50 dark:divide-slate-800/50 text-sm"></tbody>
+                        <tbody id="computer-list" class="divide-y divide-slate-800/50 text-sm"></tbody>
                     </table>
                 </div>
             </div>
@@ -275,37 +231,24 @@
         </div>
     </main>
 
-    <!-- Оңдоого Сурам Модалы -->
+    <!-- Мугалимден Админге Сурам Модалы -->
     <div id="request-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md flex items-center justify-center hidden z-50 animate-fade">
         <div class="glass-panel border border-slate-200 dark:border-slate-700 rounded-3xl p-6 max-w-md w-full mx-4 shadow-2xl">
-            <h3 class="text-base font-bold mb-1 text-slate-800 dark:text-white" id="req-modal-title">Оңдоого сурам жөнөтүү</h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">IT-лаборантка сурам жөнөтүлөт</p>
+            <h3 class="text-base font-bold mb-1 text-slate-800 dark:text-white" id="req-modal-title">Админге сурам жөнөтүү</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Мүчүлүштүк тууралуу жазыңыз</p>
             
-            <form onsubmit="event.preventDefault(); submitRepairRequest();" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Мүчүлүштүк тууралуу жазыңыз</label>
-                    <textarea id="req-description" required rows="3" placeholder="Мисалы: Монитор күйбөй жатат..."
-                        class="w-full bg-slate-100/70 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-indigo-500"></textarea>
-                </div>
+            <form onsubmit="event.preventDefault(); submitTeacherRequest();" class="space-y-4">
+                <textarea id="req-description" required rows="3" placeholder="Мис: Монитор күйбөй жатат..."
+                    class="w-full bg-slate-100/70 dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl p-3 text-sm"></textarea>
                 <div class="flex space-x-3">
-                    <button type="button" onclick="closeRequestModal()" class="w-1/2 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white py-2.5 rounded-xl text-xs font-semibold">Жабуу</button>
-                    <button type="submit" class="w-1/2 bg-amber-600 hover:bg-amber-500 text-white py-2.5 rounded-xl text-xs font-semibold shadow-lg">Жөнөтүү</button>
+                    <button type="button" onclick="closeRequestModal()" class="w-1/2 bg-slate-200 dark:bg-slate-700 py-2.5 rounded-xl text-xs">Жабуу</button>
+                    <button type="submit" class="w-1/2 bg-amber-600 hover:bg-amber-500 text-white py-2.5 rounded-xl text-xs shadow-lg">Жөнөтүү</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- QR-код Модалы -->
-    <div id="qr-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md flex items-center justify-center hidden z-50 animate-fade">
-        <div class="glass-panel border border-slate-200 dark:border-slate-700 rounded-3xl p-7 max-w-sm w-full mx-4 shadow-2xl text-center">
-            <h3 class="text-lg font-bold mb-1 text-slate-800 dark:text-white" id="qr-modal-title">QR Code</h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mb-5" id="qr-modal-sub">Компьютердин QR коду</p>
-            <div class="flex justify-center bg-white p-5 rounded-2xl mb-6 shadow-inner border border-slate-100" id="qrcode-container"></div>
-            <button onclick="closeQrModal()" class="w-full bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white py-2.5 rounded-xl font-medium">Жабуу</button>
-        </div>
-    </div>
-
-    <!-- Логика жана Firebase Auth -->
+    <!-- Firebase жана Логика -->
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyB--5Sj1BImlgSqaNVorqy4vRYSnABaopQ",
@@ -321,71 +264,61 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        let isRegisterMode = false;
-        let currentUserRole = 'teacher';
+        let userRole = 'teacher';
         let computers = [];
         let requests = [];
 
-        // Авторизация абалын көзөмөлдөө
         auth.onAuthStateChanged((user) => {
-            const authModal = document.getElementById('auth-modal');
-            const userDisplay = document.getElementById('user-email-display');
-            const adminPanels = document.querySelectorAll('.admin-only');
-            const teacherPanels = document.querySelectorAll('.teacher-only');
+            const loginBtn = document.getElementById('login-btn-container');
+            const logoutBtn = document.getElementById('logout-btn-container');
+            const userEmail = document.getElementById('user-display-email');
+            const badgeText = document.getElementById('role-badge-text');
+
+            document.querySelectorAll('.role-section').forEach(el => el.classList.add('hidden'));
 
             if (user) {
-                authModal.classList.add('hidden');
-                userDisplay.innerText = user.email;
-                
-                // Эгер почтаңыз "admin" сөзүн камтыса админ болот, калганы мугалим
-                if (user.email.includes('admin')) {
-                    currentUserRole = 'admin';
-                    adminPanels.forEach(el => el.classList.remove('hidden'));
-                    teacherPanels.forEach(el => el.classList.add('hidden'));
-                } else {
-                    currentUserRole = 'teacher';
-                    adminPanels.forEach(el => el.classList.add('hidden'));
-                    teacherPanels.forEach(el => el.classList.remove('hidden'));
-                }
+                loginBtn.classList.add('hidden');
+                logoutBtn.classList.remove('hidden');
+                userEmail.innerText = user.email;
 
-                loadDataFromCloud();
+                if (user.email.includes('admin')) {
+                    userRole = 'admin';
+                    badgeText.innerText = "Администратор режими";
+                    document.getElementById('admin-panel').classList.remove('hidden');
+                } else if (user.email.includes('it')) {
+                    userRole = 'it';
+                    badgeText.innerText = "IT Адис режими";
+                    document.getElementById('it-panel').classList.remove('hidden');
+                } else {
+                    userRole = 'teacher';
+                    badgeText.innerText = "Мугалимдик режим";
+                    document.getElementById('teacher-panel').classList.remove('hidden');
+                }
             } else {
-                authModal.classList.remove('hidden');
-                userDisplay.innerText = "Катталуу же кирүү";
+                userRole = 'teacher';
+                loginBtn.classList.remove('hidden');
+                logoutBtn.classList.add('hidden');
+                badgeText.innerText = "Мугалимдик режим (Каттоосуз)";
+                document.getElementById('teacher-panel').classList.remove('hidden');
             }
+
+            loadDataFromCloud();
         });
 
-        function toggleAuthMode() {
-            isRegisterMode = !isRegisterMode;
-            document.getElementById('auth-title').innerText = isRegisterMode ? "SmartCampus Катталуу" : "SmartCampus OS Кирүү";
-            document.getElementById('auth-sub').innerText = isRegisterMode ? "Жаңы аккаунт түзүңүз" : "Почта жана пароль жазыңыз";
-            document.getElementById('auth-btn').innerText = isRegisterMode ? "Катталуу" : "Кирүү";
-            document.getElementById('auth-toggle-btn').innerText = isRegisterMode ? "Аккаунтуңуз барбы? Кирүү" : "Аккаунтуңуз жокпу? Катталуу";
-        }
+        function openAuthModal() { document.getElementById('auth-modal').classList.remove('hidden'); }
+        function closeAuthModal() { document.getElementById('auth-modal').classList.add('hidden'); }
 
         function handleAuth() {
             const email = document.getElementById('auth-email').value.trim();
             const password = document.getElementById('auth-password').value.trim();
-
-            if (isRegisterMode) {
-                auth.createUserWithEmailAndPassword(email, password).then(() => {
-                    showToast("Ийгиликтүү катталдыңыз!", "success");
-                }).catch((error) => {
-                    alert("Ката: " + error.message);
-                });
-            } else {
-                auth.signInWithEmailAndPassword(email, password).then(() => {
-                    showToast("Кош келдиңиз!", "success");
-                }).catch((error) => {
-                    alert("Ката: " + error.message);
-                });
-            }
+            auth.signInWithEmailAndPassword(email, password).then(() => {
+                closeAuthModal();
+                showToast("Ийгиликтүү кирдиңиз!");
+            }).catch((error) => alert("Ката: " + error.message));
         }
 
         function logoutUser() {
-            auth.signOut().then(() => {
-                location.reload();
-            });
+            auth.signOut().then(() => showToast("Чыктыңыз"));
         }
 
         function loadDataFromCloud() {
@@ -401,271 +334,7 @@
             });
         }
 
-        const translations = {
-            ky: {
-                statOperational: "Иштеп жаткан",
-                statRepair: "Оңдоодо",
-                statBroken: "Бузулган",
-                formTitle: "Компьютер кошуу",
-                labelName: "Аталышы / Номери",
-                labelLocation: "Кабинет",
-                labelStatus: "Статусу",
-                tableTitle: "Инвентарь тизмеси",
-                searchPlaceholder: "Издөө...",
-                filterAll: "Бардык статустар",
-                filterOperational: "Иштеп жаткандар",
-                filterRepair: "Оңдоодогулар",
-                filterBroken: "Бузулгандар",
-                thName: "Аталышы",
-                thLocation: "Кабинет",
-                thStatus: "Статусу",
-                thAction: "Аракет",
-                noData: "Маалымат жок"
-            },
-            ru: {
-                statOperational: "Исправные",
-                statRepair: "В ремонте",
-                statBroken: "Сломанные",
-                formTitle: "Добавить компьютер",
-                labelName: "Имя / Номер",
-                labelLocation: "Кабинет",
-                labelStatus: "Статус",
-                tableTitle: "Список инвентаря",
-                searchPlaceholder: "Поиск...",
-                filterAll: "Все статусы",
-                filterOperational: "Исправные",
-                filterRepair: "В ремонте",
-                filterBroken: "Сломанные",
-                thName: "Название",
-                thLocation: "Кабинет",
-                thStatus: "Статус",
-                thAction: "Действие",
-                noData: "Нет данных"
-            },
-            en: {
-                statOperational: "Operational",
-                statRepair: "In Repair",
-                statBroken: "Broken",
-                formTitle: "Add Computer",
-                labelName: "Name / ID",
-                labelLocation: "Location",
-                labelStatus: "Status",
-                tableTitle: "Inventory List",
-                searchPlaceholder: "Search...",
-                filterAll: "All Statuses",
-                filterOperational: "Operational",
-                filterRepair: "Repair",
-                filterBroken: "Broken",
-                thName: "Name",
-                thLocation: "Location",
-                thStatus: "Status",
-                thAction: "Action",
-                noData: "No data found"
-            }
-        };
-
-        let currentLang = localStorage.getItem('smartcampus_lang') || 'ky';
-        function switchLanguage(lang) {
-            currentLang = lang;
-            localStorage.setItem('smartcampus_lang', lang);
-            updateTexts();
-        }
-        function updateTexts() {
-            const t = translations[currentLang];
-            if (!t) return;
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (t[key]) el.innerText = t[key];
-            });
-            render();
-        }
-
-        function showToast(message, type = 'success') {
+        function showToast(message) {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            toast.className = `${type === 'success' ? 'bg-emerald-600' : 'bg-amber-600'} text-white px-4 py-3 rounded-2xl shadow-xl text-sm font-medium animate-fade`;
-            toast.innerText = message;
-            container.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
-        }
-
-        function updateClock() {
-            const timeEl = document.getElementById('clock-time');
-            if (timeEl) timeEl.innerText = new Date().toLocaleTimeString();
-        }
-        setInterval(updateClock, 1000);
-
-        let currentTheme = localStorage.getItem('smartcampus_theme') || 'dark';
-        function applyTheme() {
-            const htmlRoot = document.getElementById('html-root');
-            const themeIcon = document.getElementById('theme-icon');
-            if (currentTheme === 'dark') {
-                htmlRoot.classList.add('dark');
-                if (themeIcon) themeIcon.className = "fa-solid fa-sun";
-            } else {
-                htmlRoot.classList.remove('dark');
-                if (themeIcon) themeIcon.className = "fa-solid fa-moon";
-            }
-        }
-        function toggleTheme() {
-            currentTheme = (currentTheme === 'dark') ? 'light' : 'dark';
-            localStorage.setItem('smartcampus_theme', currentTheme);
-            applyTheme();
-        }
-        applyTheme();
-
-        function addComputer() {
-            const name = document.getElementById('pc-name').value.trim();
-            const location = document.getElementById('pc-location').value.trim();
-            const status = document.getElementById('pc-status').value;
-
-            db.collection("computers").add({ name, location, status }).then(() => {
-                document.getElementById('pc-name').value = '';
-                document.getElementById('pc-location').value = '';
-                showToast("Компьютер кошулду!");
-                loadDataFromCloud();
-            });
-        }
-
-        function deleteComputer(id) {
-            if (confirm("Өчүрүүнү каалайсызбы?")) {
-                db.collection("computers").doc(id).delete().then(() => {
-                    showToast("Өчүрүлдү!", "warning");
-                    loadDataFromCloud();
-                });
-            }
-        }
-
-        function renderRequests() {
-            const listEl = document.getElementById('requests-list');
-            if (!listEl) return;
-            const pending = requests.filter(r => r.status === 'pending');
-            listEl.innerHTML = pending.length === 0 ? `<p class="text-xs text-slate-400 text-center py-4">Жаңы сурамдар жок</p>` : '';
-            pending.forEach(req => {
-                listEl.innerHTML += `
-                    <div class="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 text-xs">
-                        <div class="flex justify-between font-bold text-amber-500 mb-1">
-                            <span>${req.pcName} (${req.location})</span>
-                            <button onclick="resolveRequest('${req.id}', '${req.pcFirebaseId}')" class="bg-emerald-600 text-white px-2 py-0.5 rounded text-[10px]">Оңдолду</button>
-                        </div>
-                        <p class="text-slate-300">${req.desc}</p>
-                    </div>`;
-            });
-        }
-
-        function resolveRequest(reqId, pcId) {
-            db.collection("requests").doc(reqId).update({ status: 'resolved' }).then(() => {
-                if (pcId) db.collection("computers").doc(pcId).update({ status: "Operational" });
-                showToast("Чечилди!");
-                loadDataFromCloud();
-            });
-        }
-
-        let selectedPc = null;
-        function openRequestModal(id) {
-            selectedPc = computers.find(p => p.id === id);
-            if (selectedPc) document.getElementById('request-modal').classList.remove('hidden');
-        }
-        function closeRequestModal() {
-            document.getElementById('request-modal').classList.add('hidden');
-            document.getElementById('req-description').value = '';
-        }
-        function submitRepairRequest() {
-            const desc = document.getElementById('req-description').value.trim();
-            if (!selectedPc || !desc) return;
-            db.collection("requests").add({
-                pcFirebaseId: selectedPc.id,
-                pcName: selectedPc.name,
-                location: selectedPc.location,
-                desc,
-                status: 'pending'
-            }).then(() => {
-                return db.collection("computers").doc(selectedPc.id).update({ status: 'Repair' });
-            }).then(() => {
-                closeRequestModal();
-                showToast("Заявка жөнөтүлдү!", "warning");
-                loadDataFromCloud();
-            });
-        }
-
-        function openQrModal(id) {
-            const pc = computers.find(p => p.id === id);
-            if (!pc) return;
-            document.getElementById('qr-modal-title').innerText = pc.name;
-            document.getElementById('qr-modal-sub').innerText = pc.location;
-            const container = document.getElementById('qrcode-container');
-            container.innerHTML = '';
-            new QRCode(container, { text: `PC: ${pc.name}, Room: ${pc.location}`, width: 160, height: 160 });
-            document.getElementById('qr-modal').classList.remove('hidden');
-        }
-        function closeQrModal() { document.getElementById('qr-modal').classList.add('hidden'); }
-
-        function toggleClearBtn() {
-            const val = document.getElementById('search-input').value;
-            document.getElementById('clear-search-btn').classList.toggle('hidden', val.length === 0);
-        }
-        function clearSearch() {
-            document.getElementById('search-input').value = '';
-            toggleClearBtn();
-            render();
-        }
-
-        function render() {
-            const listEl = document.getElementById('computer-list');
-            if (!listEl) return;
-            const search = document.getElementById('search-input').value.toLowerCase().trim();
-            const filter = document.getElementById('filter-status').value;
-            
-            listEl.innerHTML = '';
-            let op = 0, rep = 0, brk = 0;
-            computers.forEach(pc => {
-                if (pc.status === 'Operational') op++;
-                else if (pc.status === 'Repair') rep++;
-                else if (pc.status === 'Broken') brk++;
-            });
-
-            document.getElementById('count-operational').innerText = op;
-            document.getElementById('count-repair').innerText = rep;
-            document.getElementById('count-broken').innerText = brk;
-            document.getElementById('total-count').innerText = `Бардыгы: ${computers.length}`;
-
-            const filtered = computers.filter(pc => {
-                const matchSearch = pc.name.toLowerCase().includes(search) || pc.location.toLowerCase().includes(search);
-                const matchFilter = filter === 'All' || pc.status === filter;
-                return matchSearch && matchFilter;
-            });
-
-            if (filtered.length === 0) {
-                listEl.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-slate-400">Маалымат табылган жок</td></tr>`;
-            } else {
-                filtered.forEach(pc => {
-                    let badgeClass = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
-                    let badgeText = 'Иштеп жатат';
-                    if (pc.status === 'Repair') {
-                        badgeClass = 'bg-amber-500/10 text-amber-400 border-amber-500/20';
-                        badgeText = 'Оңдоодо';
-                    } else if (pc.status === 'Broken') {
-                        badgeClass = 'bg-rose-500/10 text-rose-400 border-rose-500/20';
-                        badgeText = 'Бузулган';
-                    }
-
-                    let action = currentUserRole === 'admin' ? 
-                        `<button onclick="openQrModal('${pc.id}')" class="text-slate-400 hover:text-indigo-400 p-1.5"><i class="fa-solid fa-qrcode"></i></button>
-                         <button onclick="deleteComputer('${pc.id}')" class="text-slate-400 hover:text-rose-400 p-1.5"><i class="fa-solid fa-trash"></i></button>` :
-                        `<button onclick="openRequestModal('${pc.id}')" class="bg-amber-500/10 hover:bg-amber-500 text-amber-400 hover:text-white border border-amber-500/30 text-xs px-2.5 py-1 rounded-lg transition"><i class="fa-solid fa-wrench mr-1"></i> Заявка</button>`;
-
-                    listEl.innerHTML += `
-                        <tr class="border-b border-slate-800/50 hover:bg-slate-800/20">
-                            <td class="py-3 px-4 font-medium text-white">${pc.name}</td>
-                            <td class="py-3 px-4 text-slate-400">${pc.location}</td>
-                            <td class="py-3 px-4"><span class="px-2.5 py-1 rounded-full text-xs font-semibold border ${badgeClass}">${badgeText}</span></td>
-                            <td class="py-3 px-4 text-right">${action}</td>
-                        </tr>`;
-                });
-            }
-            if (currentUserRole === 'admin') renderRequests();
-        }
-        updateTexts();
-    </script>
-</body>
-</html>
+            toast.className = `bg-emerald
