@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "name": "PC-Lab-202",
+    "location": "202-кабинет",
+    "status": "Operational"
+  },
+  {
+    "id": 2,
+    "name": "PC-Lab-305",
+    "location": "305-кабинет",
+    "status": "Repair"
+  },
+  {
+    "id": 1791960166663,
+    "name": "Aman",
+    "location": "бишкек",
+    "status": "Broken"
+  }
+]
