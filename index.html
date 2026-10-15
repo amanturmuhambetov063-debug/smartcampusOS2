@@ -22,6 +22,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- QR Code Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
+    <!-- Firebase SDK (Compat версиясы - бардык телефондордо иштейт) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
     <style>
         .glass-panel {
             background: rgba(255, 255, 255, 0.85);
@@ -281,11 +286,8 @@
         </div>
     </div>
 
-    <!-- Firebase жана Негизги Логика -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js";
-
+    <!-- Firebase инициализация жана Логика -->
+    <script>
         const firebaseConfig = {
             apiKey: "AIzaSyB--5Sj1BImlgSqaNVorqy4vRYSnABaopQ",
             authDomain: "smartcampus-db.firebaseapp.com",
@@ -296,38 +298,38 @@
             measurementId: "G-QPPDQWLTPJ"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        // Firebase туташтыруу
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
-        window.db = db;
-        window.colComputers = collection(db, "computers");
-        window.colRequests = collection(db, "requests");
+        let computers = [];
+        let requests = [];
 
-        async function loadDataFromCloud() {
-            try {
-                const compSnapshot = await getDocs(window.colComputers);
+        // Базадан маалыматтарды тартып алуу
+        function loadDataFromCloud() {
+            db.collection("computers").get().then((querySnapshot) => {
                 computers = [];
-                compSnapshot.forEach(docSnap => {
-                    computers.push({ id: docSnap.id, ...docSnap.data() });
+                querySnapshot.forEach((doc) => {
+                    computers.push({ id: doc.id, ...doc.data() });
                 });
-
-                const reqSnapshot = await getDocs(window.colRequests);
-                requests = [];
-                reqSnapshot.forEach(docSnap => {
-                    requests.push({ id: docSnap.id, ...docSnap.data() });
-                });
-
                 render();
-            } catch (e) {
-                console.error("Базадан маалымат алууда ката:", e);
-            }
+            }).catch((error) => {
+                console.error("Компьютерлерди алууда ката:", error);
+            });
+
+            db.collection("requests").get().then((querySnapshot) => {
+                requests = [];
+                querySnapshot.forEach((doc) => {
+                    requests.push({ id: doc.id, ...doc.data() });
+                });
+                render();
+            }).catch((error) => {
+                console.error("Сурамдарды алууда ката:", error);
+            });
         }
 
-        window.loadDataFromCloud = loadDataFromCloud;
         loadDataFromCloud();
-    </script>
 
-    <script>
         const translations = {
             ky: {
                 statOperational: "Иштеп жаткан",
@@ -407,8 +409,6 @@
         };
 
         let currentRole = localStorage.getItem('smartcampus_role') || 'admin';
-        let computers = [];
-        let requests = [];
 
         function setUserRole(role) {
             currentRole = role;
@@ -519,8 +519,8 @@
             }
         }
 
-        // Базага компьютер кошуу (Телефондо да, компьютерде да иштейт)
-        async function addComputer() {
+        // Компьютер кошуу функциясы
+        function addComputer() {
             const nameInput = document.getElementById('pc-name');
             const locationInput = document.getElementById('pc-location');
             const statusInput = document.getElementById('pc-status');
@@ -536,30 +536,25 @@
                 status: statusInput.value
             };
 
-            try {
-                const { addDoc, collection } = await import("https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js");
-                await addDoc(collection(window.db, "computers"), newPc);
-                
+            db.collection("computers").add(newPc).then(() => {
                 nameInput.value = '';
                 locationInput.value = '';
                 showToast(translations[currentLang].toastAdd, 'success');
-                window.loadDataFromCloud();
-            } catch (e) {
-                console.error("Которууда ката:", e);
-                alert("Ката кетти: " + e.message);
-            }
+                loadDataFromCloud();
+            }).catch((error) => {
+                console.error("Которууда ката:", error);
+                alert("Ката кетти: " + error.message);
+            });
         }
 
-        async function deleteComputer(id) {
+        function deleteComputer(id) {
             if (confirm(translations[currentLang].confirmDelete)) {
-                try {
-                    const { deleteDoc, doc } = await import("https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js");
-                    await deleteDoc(doc(window.db, "computers", id));
+                db.collection("computers").doc(id).delete().then(() => {
                     showToast(translations[currentLang].toastDelete, 'warning');
-                    window.loadDataFromCloud();
-                } catch (e) {
-                    console.error("Өчүрүүдө ката:", e);
-                }
+                    loadDataFromCloud();
+                }).catch((error) => {
+                    console.error("Өчүрүүдө ката:", error);
+                });
             }
         }
 
@@ -590,18 +585,16 @@
             });
         }
 
-        async function resolveRequest(reqId, pcFirebaseId) {
-            try {
-                const { updateDoc, doc } = await import("https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js");
-                await updateDoc(doc(window.db, "requests", reqId), { status: 'resolved' });
+        function resolveRequest(reqId, pcFirebaseId) {
+            db.collection("requests").doc(reqId).update({ status: 'resolved' }).then(() => {
                 if (pcFirebaseId) {
-                    await updateDoc(doc(window.db, "computers", pcFirebaseId), { status: "Operational" });
+                    db.collection("computers").doc(pcFirebaseId).update({ status: "Operational" });
                 }
                 showToast(translations[currentLang].toastSolved, 'success');
-                window.loadDataFromCloud();
-            } catch (e) {
-                console.error("Сурамды жаңыртууда ката:", e);
-            }
+                loadDataFromCloud();
+            }).catch((error) => {
+                console.error("Сурамды жаңыртууда ката:", error);
+            });
         }
 
         let selectedPcForReq = null;
@@ -618,7 +611,7 @@
             selectedPcForReq = null;
         }
 
-        async function submitRepairRequest() {
+        function submitRepairRequest() {
             const desc = document.getElementById('req-description').value.trim();
             if (!selectedPcForReq || !desc) return;
 
@@ -630,17 +623,15 @@
                 status: 'pending'
             };
 
-            try {
-                const { addDoc, updateDoc, doc, collection } = await import("https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js");
-                await addDoc(collection(window.db, "requests"), newReq);
-                await updateDoc(doc(window.db, "computers", selectedPcForReq.id), { status: 'Repair' });
-                
+            db.collection("requests").add(newReq).then(() => {
+                return db.collection("computers").doc(selectedPcForReq.id).update({ status: 'Repair' });
+            }).then(() => {
                 closeRequestModal();
                 showToast(translations[currentLang].toastReq, 'warning');
-                window.loadDataFromCloud();
-            } catch (e) {
-                console.error("Заявка жөнөтүүдө ката:", e);
-            }
+                loadDataFromCloud();
+            }).catch((error) => {
+                console.error("Заявка жөнөтүүдө ката:", error);
+            });
         }
 
         function openQrModal(pcId) {
