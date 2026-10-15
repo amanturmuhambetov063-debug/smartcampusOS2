@@ -303,7 +303,6 @@
         window.colComputers = collection(db, "computers");
         window.colRequests = collection(db, "requests");
 
-        // Баштапкы маалыматтарды базадан тартып алуу функциясы
         async function loadDataFromCloud() {
             try {
                 const compSnapshot = await getDocs(window.colComputers);
@@ -520,11 +519,16 @@
             }
         }
 
-        // Базага компьютер кошуу
+        // Базага компьютер кошуу (Телефондо да, компьютерде да иштейт)
         async function addComputer() {
             const nameInput = document.getElementById('pc-name');
             const locationInput = document.getElementById('pc-location');
             const statusInput = document.getElementById('pc-status');
+
+            if (!nameInput.value.trim() || !locationInput.value.trim()) {
+                alert("Бардык талааларды толтуруңуз!");
+                return;
+            }
 
             const newPc = {
                 name: nameInput.value.trim(),
@@ -533,18 +537,19 @@
             };
 
             try {
-                const { addDoc } = await import("https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js");
-                await addDoc(window.colComputers, newPc);
+                const { addDoc, collection } = await import("https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js");
+                await addDoc(collection(window.db, "computers"), newPc);
+                
                 nameInput.value = '';
                 locationInput.value = '';
                 showToast(translations[currentLang].toastAdd, 'success');
                 window.loadDataFromCloud();
             } catch (e) {
                 console.error("Которууда ката:", e);
+                alert("Ката кетти: " + e.message);
             }
         }
 
-        // Базадан компьютер өчүрүү
         async function deleteComputer(id) {
             if (confirm(translations[currentLang].confirmDelete)) {
                 try {
@@ -626,8 +631,8 @@
             };
 
             try {
-                const { addDoc, updateDoc, doc } = await import("https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js");
-                await addDoc(window.colRequests, newReq);
+                const { addDoc, updateDoc, doc, collection } = await import("https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js");
+                await addDoc(collection(window.db, "requests"), newReq);
                 await updateDoc(doc(window.db, "computers", selectedPcForReq.id), { status: 'Repair' });
                 
                 closeRequestModal();
